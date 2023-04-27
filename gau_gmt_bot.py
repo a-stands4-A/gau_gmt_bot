@@ -1,24 +1,25 @@
 from aiogram import Bot, Dispatcher, executor, types
-from config import TOKEN
+import config
 
-bot = Bot(token=TOKEN)
+
+bot = Bot(config.TOKEN)
 dp = Dispatcher(bot)
 
-@dp.message_handler(commands=['start', 'help', 'echo'])
-async def echo(msg: types.Message):
-    await msg.answer(text=msg.text + ", GIT GUT, MATE", reply_markup=types .ReplyKeyboardRemove())
+HELP_CMD = """
+/help - list of commands
+/start - start work via bot
+"""
+
+@dp.message_handler(commands=["help"])
+async def hellp_cmd(message: types.Message):
+    await message.reply(text=HELP_CMD)
 
 
-# # practice 1.1
-# @dp.message_handler()
-# async def echo_upper(message: types.Message):
-#     await message.answer(text=message.text.upper())
+@dp.message_handler(commands=["start"])
+async def hellp_cmd(message: types.Message):
+    await message.answer(text="welcome on board")
+    await message.delete()
 
-# practice 1.2
-@dp.message_handler()
-async def mes_count(message: types.Message):
-    if message.text.count(' ') >= 1:
-        await message.answer(text=message.text)
 
-if __name__ == '__main__':
-   executor.start_polling(dp)
+if __name__ == "__main__":
+    executor.start_polling(dp)
