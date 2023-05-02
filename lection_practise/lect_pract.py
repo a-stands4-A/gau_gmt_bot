@@ -1,11 +1,10 @@
 import string
-
 from aiogram import Bot, Dispatcher, executor, types
 import random as rdm
 
 from  config import TOKEN
 
-bot = Bot(token=TOKEN)
+bot = Bot(TOKEN)
 dp = Dispatcher(bot)
 
 count = 1
@@ -32,5 +31,5 @@ async def rdm_ASCII(message: types.Message):
     await message.reply(rdm.choice(string.ascii_letters))
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     executor.start_polling(dp)
