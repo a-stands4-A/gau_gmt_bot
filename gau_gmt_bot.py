@@ -1,4 +1,4 @@
-import aiogram.utils.markdown as md
+import pyperclip
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
@@ -18,8 +18,15 @@ bot = Bot(config.TOKEN)
 memory_storage = MemoryStorage()
 dp = Dispatcher(bot, storage=memory_storage)
 
+
+async def on_startup(_):
+    print("Я запустился")
+
 # создаем состояние
-class TestState(StatesGroup):
+class TestStateComp(StatesGroup):
+    waiting_for_text = State()
+# создаем состояние2
+class TestStateItog(StatesGroup):
     waiting_for_text = State()
 
 
@@ -28,14 +35,25 @@ class TestState(StatesGroup):
 async def process_comp_command(message: types.Message):
     await message.answer("Введите текст:")
     # задаем состояние ожидания текста
-    await TestState.waiting_for_text.set()
+    await TestStateComp.waiting_for_text.set()
+    @dp.message_handler(state=TestStateComp.waiting_for_text)
+    async def process_message(message: types.Message, state: FSMContext):
+        # Выполняем функцию qwe и отправляем результат пользователю
+        result = qwe(message.text)
+        await message.answer(f"{result}")
+        await state.finish()
 
-@dp.message_handler(state=TestState.waiting_for_text)
-async def process_message(message: types.Message, state: FSMContext):
-    # Выполняем функцию qwe и отправляем результат пользователю
-    result = qwe(message.text)
-    await message.answer(f"{result}")
-    await state.finish()
+@dp.message_handler(commands=['z'])
+async def itogging(message: types.Message):
+    await message.answer("Введите:")
+    # задаем состояние ожидания текста
+    await TestStateItog.waiting_for_text.set()
+    @dp.message_handler(state=TestStateItog.waiting_for_text)
+    async def clearN(message: types.Message, state: FSMContext):
+        # Выполняем функцию qwe и отправляем результат пользователю
+        result = clearNN(message.text)
+        await message.answer(f"{result}")
+        await state.finish()
 
 def qwe(message: str):
     result = []
@@ -52,6 +70,7 @@ def qwe(message: str):
         result.append(genitive_phrase)
 
     itog = "\n".join(result)
+    pyperclip.copy(itog)
     return itog
 
 def inflect_to_genitive(word):
@@ -61,9 +80,17 @@ def inflect_to_genitive(word):
     return genitive_word.word if genitive_word else word
 
 @dp.message_handler()
-async def process_message(message: types.Message):
+async def del_message(message: types.Message):
     await message.delete()
+
+
+def clearNN(message: str):
+    text = message.replace("\n", "")
+    itog = text.replace(".", ". ")
+    pyperclip.copy(itog)
+    return itog
+
 
 if __name__ == '__main__':
     # Запускаем бота
-    executor.start_polling(dp)
+    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)
