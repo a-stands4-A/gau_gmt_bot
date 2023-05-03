@@ -15,6 +15,33 @@ from aiogram.types import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, I
 import config
 import pymorphy2
 
+
+haha = {
+        "бу": "Блок управления.",
+        "пу": "Панель управления.",
+        "кз": "Межвитковое замыкание обмоток трансформатора.",
+        "в": "Выгорание электронных компонентов платы.",
+        "ус": "Пробой элементов усилительного каскада.",
+        "ак": "Снижение емкостных характеристик, коррозия обмоток индукции.",
+        "аку": "Повреждение акустической линзы.",
+        "опт": "Разгерметизация, вызывающая запотевание, помутнение элементов.",
+        "вент": "Износ вала электродвигателя привода, пробой обмоток трансформатора.",
+        "кнп": "Механическая выработка элементов, снижение активности кнопок.",
+        "ш": "Выработка подвижных узлов и деталей.",
+        "шш": "Штатив",
+        "пр": "Выработка ресурса лентопротяжного механизма.",
+        "прр": "Выработка ресурса лентопротяжного механизма, выгорание термоголовки.",
+        "мп": "Разгерметизация гидравлической системы.",
+        "мпп": "Механическая выработка узлов и деталей.",
+        "ж": "Обрыв токонесущих жил кабелей.",
+        "т": "Погрешность измерений выше класса точности, механическая выработка ресурса.",
+}
+
+
+HELP_CMD = ""
+for i in haha.keys():
+    HELP_CMD += f"*{i}* - _{haha[i]}_\n"
+
 bot = Bot(config.TOKEN)
 memory_storage = MemoryStorage()
 dp = Dispatcher(bot, storage=memory_storage)
@@ -25,7 +52,8 @@ kb = ReplyKeyboardMarkup(
 )
 b1 = KeyboardButton("/c")
 b2 = KeyboardButton("/z")
-kb.insert(b1).insert(b2)
+b3 = KeyboardButton("/h")
+kb.insert(b1).insert(b2).add(b3)
 
 async def on_startup(_):
     print("Я запустился")
@@ -36,6 +64,14 @@ class TestStateComp(StatesGroup):
 # создаем состояние2
 class TestStateItog(StatesGroup):
     waiting_for_text = State()
+@dp.message_handler(commands=["h"])
+async def helpCmd(mess: types.Message):
+    await bot.send_message(
+            chat_id=mess.from_user.id,
+            text=HELP_CMD,
+            parse_mode="MARKDOWN",
+    )
+    await mess.delete()
 
 @dp.message_handler(commands=['start'])
 async def process_comp_command(message: types.Message):
@@ -110,9 +146,13 @@ def inflect_to_genitive(word):
     return genitive_word.word if genitive_word else word
 
 @dp.message_handler()
-async def del_message(message: types.Message):
-    await message.delete()
-
+async def content(mess: types.Message):
+    if mess.text.lower() in haha.keys():
+        pyperclip.copy(haha[mess.text.lower()])
+    await mess.delete()
+# @dp.message_handler()
+# async def del_message(message: types.Message):
+#     await message.delete()
 
 
 def clearNN(message: str):
