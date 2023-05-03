@@ -1,4 +1,5 @@
 import pyperclip
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
@@ -18,6 +19,13 @@ bot = Bot(config.TOKEN)
 memory_storage = MemoryStorage()
 dp = Dispatcher(bot, storage=memory_storage)
 
+kb = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        # one_time_keyboard=True
+)
+b1 = KeyboardButton("/c")
+b2 = KeyboardButton("/z")
+kb.insert(b1).insert(b2)
 
 async def on_startup(_):
     print("Я запустился")
@@ -29,11 +37,30 @@ class TestStateComp(StatesGroup):
 class TestStateItog(StatesGroup):
     waiting_for_text = State()
 
+@dp.message_handler(commands=['start'])
+async def process_comp_command(message: types.Message):
+    await bot.send_message(
+            chat_id=message.from_user.id,
+            text="давай приступим!",
+            reply_markup=kb
+    )
+
+@dp.message_handler(commands=["cL"])
+async def startCmd(mess: types.Message):
+    await bot.send_message(
+            chat_id=mess.from_user.id,
+            text="cleaning KeyBoards",
+            reply_markup=ReplyKeyboardRemove()
+    )
+    await mess.delete()
 
 # Определяем функцию, которая будет вызвана по команде /comp
 @dp.message_handler(commands=['c'])
 async def process_comp_command(message: types.Message):
-    await message.answer("Введите текст:")
+    await bot.send_message(
+            chat_id=message.from_user.id,
+            text="Введите компоненты:",
+    )
     # задаем состояние ожидания текста
     await TestStateComp.waiting_for_text.set()
     @dp.message_handler(state=TestStateComp.waiting_for_text)
@@ -45,7 +72,10 @@ async def process_comp_command(message: types.Message):
 
 @dp.message_handler(commands=['z'])
 async def itogging(message: types.Message):
-    await message.answer("Введите:")
+    await bot.send_message(
+            chat_id=message.from_user.id,
+            text="Введите предложения:",
+    )
     # задаем состояние ожидания текста
     await TestStateItog.waiting_for_text.set()
     @dp.message_handler(state=TestStateItog.waiting_for_text)
@@ -82,6 +112,7 @@ def inflect_to_genitive(word):
 @dp.message_handler()
 async def del_message(message: types.Message):
     await message.delete()
+
 
 
 def clearNN(message: str):
