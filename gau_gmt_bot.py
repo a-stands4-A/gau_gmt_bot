@@ -10,31 +10,48 @@ from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
-
+from aiogram.utils import exceptions
+import asyncio
 
 import config
 import pymorphy2
 
 
 haha = {
-        "бу": "Блок управления.",
-        "пу": "Панель управления.",
+        "бу": "Блок управления",
+        "пу": "Панель управления",
         "кз": "Межвитковое замыкание обмоток трансформатора.",
         "в": "Выгорание электронных компонентов платы.",
         "ус": "Пробой элементов усилительного каскада.",
-        "ак": "Снижение емкостных характеристик, коррозия обмоток индукции.",
+        "ак": "Аккумулятор",
+        "акк": "Снижение емкостных характеристик, коррозия обмоток индукции.",
         "аку": "Повреждение акустической линзы.",
-        "опт": "Разгерметизация, вызывающая запотевание, помутнение элементов.",
-        "вент": "Износ вала электродвигателя привода, пробой обмоток трансформатора.",
+        "опт": "Оптическая система",
+        "оптт": "Разгерметизация, вызывающая запотевание, помутнение элементов.",
+        "вен": "Вентилятор",
+        "венн": "Износ вала электродвигателя привода, пробой обмоток трансформатора.",
         "кнп": "Механическая выработка элементов, снижение активности кнопок.",
         "ш": "Выработка подвижных узлов и деталей.",
         "шш": "Штатив",
         "пр": "Выработка ресурса лентопротяжного механизма.",
         "прр": "Выработка ресурса лентопротяжного механизма, выгорание термоголовки.",
-        "мп": "Разгерметизация гидравлической системы.",
-        "мпп": "Механическая выработка узлов и деталей.",
+        "мп": "Механизм подъема",
+        "мпп": "Разгерметизация гидравлической системы.",
+        "мппп": "Механическая выработка узлов и деталей.",
         "ж": "Обрыв токонесущих жил кабелей.",
-        "т": "Погрешность измерений выше класса точности, механическая выработка ресурса.",
+        "тчн": "Погрешность измерений выше класса точности, механическая выработка ресурса.",
+        "изо": "Высыхание и нарушение изоляции токоведущих проводников.",
+        "кп": "Растрескивание и разрывы внешнего покрытия до тканевой основы, разрушение крепёжных элементов.",
+        "прб": "Пробозаборник",
+        "ос": "Засорение химическими осадками тройного клапана.",
+        "тн": "Выгорание нитей накала.",
+        "ба": "Блок анализатора",
+        "про": "Механический износ помп, выработка механизма пробозаборника.",
+        "проо": "Выработан ресурс, дформация иглы.",
+        "г": "Гидросистема",
+        "гг": "Разгерметизация, утечка жидкости во внутреннее пространство аппарата.",
+        "м": "Погрешность измерений выше класса точности, механическая выработка ресурса.",
+        "мм": "Не прошёл метрологическую поверку, извещение о неисправности (неработоспособности) № КФТС-2-201/001-22Н от 22.06.22 г., максимальная величина выходной мощности не соответствует паспортному значению.",
 }
 
 
@@ -147,12 +164,28 @@ def inflect_to_genitive(word):
 
 @dp.message_handler()
 async def content(mess: types.Message):
-    if mess.text.lower() in haha.keys():
-        pyperclip.copy(haha[mess.text.lower()])
     await mess.delete()
-# @dp.message_handler()
-# async def del_message(message: types.Message):
-#     await message.delete()
+    if mess.text.lower() in haha.keys():
+        # pyperclip.copy(haha[mess.text.lower()])
+        await send_and_delete_message(mess.chat.id, haha[mess.text.lower()])
+
+# функция для отправки сообщения с последующим удалением через 25 секунд
+async def send_and_delete_message(chat_id, text):
+    try:
+        message = await bot.send_message(chat_id, text)
+        await asyncio.sleep(5)  # ждем 25 секунд
+        await bot.delete_message(chat_id, message.message_id)  # удаляем сообщение
+    except exceptions.BotBlocked:
+        print(f"Bot blocked by user with chat ID: {chat_id}")
+    except exceptions.ChatNotFound:
+        print(f"Chat not found for user with chat ID: {chat_id}")
+    except exceptions.RetryAfter as e:
+        print(f"RetryAfter {e.timeout} seconds.")
+        await asyncio.sleep(e.timeout)
+        return await send_and_delete_message(chat_id, text)
+    except exceptions.TelegramAPIError:
+        print(f"Failed to send message to user with chat ID: {chat_id}")
+
 
 
 def clearNN(message: str):
