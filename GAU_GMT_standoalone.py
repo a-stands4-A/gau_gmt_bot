@@ -62,9 +62,7 @@ def complexZakl():
     for ind, elem in enumerate(someData0):
         temp = someData1[ind] + " " + someData0[ind]
         someData.append(temp)
-    print(someData)
     combined_string = "".join(someData)
-    print(combined_string)
     pyperclip.copy(combined_string)
     input_field.delete(0, tk.END)
     input_field_1.delete(0, tk.END)
