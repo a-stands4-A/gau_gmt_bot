@@ -157,6 +157,7 @@ for i in haha.keys():
 
 root = tk.Tk()
 root.title("GAU_GMT_BOT")
+root.attributes("-topmost", True)
 root.geometry("300x315")
 
 # Create input field label and entry
