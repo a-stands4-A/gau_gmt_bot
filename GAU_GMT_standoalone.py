@@ -39,9 +39,7 @@ def roditPadesh():
         genitive_phrase += '.'
         result.append(genitive_phrase)
     itog = "\n".join(result)
-    pyperclip.copy(itog)
-    # input_field.delete(0, tk.END)
-    # input_field_1.delete(0, tk.END)
+    # pyperclip.copy(itog)
     return itog
 
 def inflect_to_genitive(word):
@@ -53,8 +51,9 @@ def inflect_to_genitive(word):
 def zakl():
     text = input_field_1.get().replace("\n", "")
     text = text.replace(".", ". ")
-    pyperclip.copy(text)
-
+    text = text.split('. ')
+    text = "\n".join(text)
+    # pyperclip.copy(text)
     # input_field.delete(0, tk.END)
     return text
 
@@ -66,8 +65,14 @@ def cmdT9():
     input_field_1.delete(0, tk.END)
 
 def show_info_message():
-    messagebox.showinfo("Информация", HELP_CMD)
-
+    if not hasattr(root, 'info_window'):
+        root.info_window = tk.Toplevel()
+        root.info_window.title("Information")
+        info_label = tk.Label(root.info_window, text=HELP_CMD)
+        info_label.pack()
+    else:
+        root.info_window.destroy()
+        del root.info_window
 def update_suggested_phrase(event):
     text = input_field.get().lower()
     if text in haha:
@@ -79,12 +84,13 @@ def update_suggested_phrase(event):
 
 def complexZakl():
     someData0 = roditPadesh().split("\n")
-    someData1 = zakl().split(". ")
+    someData1 = zakl().split("\n")
     someData = []
     for ind, elem in enumerate(someData0):
-        temp = someData1[ind] + " " + someData0[ind]
+        temp = someData1[ind].replace("\r", "") + " " + someData0[ind]
         someData.append(temp)
-    combined_string = "".join(someData)
+    someData[-1], someData[0] = someData[0], someData[-1]
+    combined_string = " ".join(someData)
     pyperclip.copy(combined_string)
     input_field.delete(0, tk.END)
     input_field_1.delete(0, tk.END)
@@ -155,10 +161,12 @@ HELP_CMD = ""
 for i in haha.keys():
     HELP_CMD += f"{i} - {haha[i]}\n"
 
+is_info = False
+
 root = tk.Tk()
 root.title("GAU_GMT_BOT")
 root.attributes("-topmost", True)
-root.geometry("300x315")
+root.geometry("200x315")
 
 # Create input field label and entry
 input_label = tk.Label(root, text="Single (компонент):")
@@ -179,6 +187,7 @@ helpCMD_button.pack()
 # component_button.pack()
 zakl_button = tk.Button(root, text="Итоговое заключение", command=complexZakl)
 zakl_button.pack()
+# noinspection PyTypeChecker
 show_info_message = tk.Button(root, text="show_info_message", command=show_info_message)
 show_info_message.pack()
 
