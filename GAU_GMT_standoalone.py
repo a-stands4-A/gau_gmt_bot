@@ -25,7 +25,6 @@ def copy_1_to_clipboard():
     pyperclip.copy(text)
     # root.clipboard_append(text)
 
-
 def roditPadesh():
     result = []
     text = input_field.get()
@@ -102,21 +101,24 @@ def writeReadDict2Txt(choice):
     if choice == 1:
         with open('data.txt', 'r') as file:
             haha = eval(file.read())
-        haha = sorted(haha.values())
+        # haha = sorted(haha.values())
+        haha1 = dict(sorted(haha.items(), key=lambda item: item[1]))
         # Запись словаря в текстовый файл в человекочитаемой форме
         with open('data.txt', 'w') as file:
-            pprint.pprint(haha, stream=file)
+            pprint.pprint(haha1, stream=file)
+        return haha1
     elif choice == 0:
         # Прочитать словарь из текстового файла
         with open('data.txt', 'r') as file:
             haha = eval(file.read())
-        return haha
+        haha1 = dict(sorted(haha.items(), key=lambda item: item[1]))
+        return haha1
 
 haha = writeReadDict2Txt(0)
 
 HELP_CMD = ""
 for i in haha.keys():
-    HELP_CMD += f"{i} - {haha[i]}\n"
+    HELP_CMD += f"{haha[i]} - {i}\n"
 
 is_info = False
 
