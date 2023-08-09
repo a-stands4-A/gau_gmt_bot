@@ -1,8 +1,6 @@
 import tkinter as tk
 import pyperclip
 import pymorphy2
-from pymorphy2.shapes import restore_capitalization
-
 from tkinter import messagebox
 from tkinter import scrolledtext
 
@@ -34,23 +32,28 @@ def copy_1_to_clipboard():
 
 
 def roditPadesh():
-    """
-    sourse:https://groups.google.com/g/pymorphy/c/zJ0E6pJAypU
-    :return:
-    """
-    morph = pymorphy2.MorphAnalyzer()
     result = []
     text = input_field.get()
     # Разбиваем текст на фразы по символам переноса строки
     phrases = text.split('\n')
-    itog = ".\n".join(inflect_all(morph, phrase, {'gent'}) for  phrase in phrases)
+    for index, phrase in enumerate(phrases):
+        dummyString = []
+        for word in phrase.split():
+            genitive_word = inflect_to_genitive(word)
+            dummyString.append(genitive_word)
+        genitive_phrase = " ".join(dummyString)
+        genitive_phrase += '.'
+        result.append(genitive_phrase)
+    itog = "\n".join(result)
+    # pyperclip.copy(itog)
     return itog
 
 
-def inflect_all(morph, text, required_grammemes):
-    tokens = text.split()
-    inflected = [morph.parse(tok)[0].inflect(required_grammemes).word for tok in tokens]
-    return " ".join(inflected)
+def inflect_to_genitive(word):
+    morph = pymorphy2.MorphAnalyzer()
+    parsed_word = morph.parse(word)[0]
+    genitive_word = parsed_word.inflect({'gent'})
+    return genitive_word.word if genitive_word else word
 
 
 def zakl():
@@ -189,3 +192,4 @@ paste_button.pack(padx=10, pady=5, fill=tk.X)
 input_field.bind("<KeyRelease>", update_suggested_phrase)
 
 root.mainloop()
+
