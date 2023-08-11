@@ -1,4 +1,6 @@
 import tkinter as tk
+from xml.sax.saxutils import prepare_input_source
+
 import pyperclip
 import pymorphy2
 from tkinter import messagebox
@@ -93,16 +95,18 @@ def update_suggested_phrase(event):
 
 
 def complexZakl():
-    someData0 = roditPadesh().replace("\t", "").replace("\r", "").split("\n")[0:-1]
-    someData1 = zakl().replace("\t", "").replace("\r", "").split("\n")[0:-1]
+    someData0 = zakl().replace("\t", "").replace("\r", "").split("\n")
+    someData1 = roditPadesh().replace("\t", "").replace("\r", "").split("\n")
     zipped_values = zip(someData0, someData1)
     zipped_list = list(zipped_values)
     someData = []
     for elem in zipped_list:
-        temp = elem[1] + " " + elem[0]
+        temp = elem[0] + " " + elem[1]
         someData.append(temp)
-    combined_string = " ".join(someData)
-    pyperclip.copy(combined_string)
+    rez = someData[0:-1]
+    rez.insert(0, someData[-1])
+    combined_string = " ".join(rez)
+    pyperclip.copy(combined_string + " ")
     input_field.delete(0, tk.END)
     input_field_1.delete(0, tk.END)
 
